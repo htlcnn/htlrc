@@ -171,3 +171,10 @@ alias glast='git diff-tree --name-only -r --no-commit-id HEAD'
 
 alias ipn3='source /www/ipn/ipn/bin/activate'
 alias ipn2='source /www/ipn/ipn2/bin/activate'
+
+alias ssh-homeserver='ssh 101.99.13.191 -p 1722'
+
+alias venv2='source ~/venv2.7/bin/activate'
+alias venv3='source ~/venv3.5/bin/activate'
+# alias projector='xrandr --output VGA-0 --mode 1024x768_60.00'
+alias projector='xrandr --output VGA-0 --mode 1024x768 --same-as LVDS'

@@ -127,3 +127,5 @@ endif
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 
 imap jk <esc>
+
+set pastetoggle=<F2>
