@@ -14,14 +14,14 @@ set history=50
 set nospell
 
 " Vim pathogen
-execute pathogen#infect()
+" execute pathogen#infect()
 
 
 " Indenting
 set autoindent
 set cindent
 set smartindent
-"
+
 " Tab
 set expandtab
 set sw=4
@@ -43,8 +43,6 @@ set incsearch
 set showmatch
 
 " Binding
-" nmap j gj
-" nmap k gk
 
 nmap <Leader>E :NERDTreeToggle<CR>
 nmap <Leader>p :set paste!<CR>i
@@ -68,22 +66,6 @@ autocmd FileType python set omnifunc=pythoncomplete#Complete
 autocmd FileType sh nmap <Leader>r :!bash %<CR>
 autocmd FileType sh nmap <Leader># ggO#!/bin/bash<Esc>o
 
-" Golang
-autocmd FileType go nmap <leader>r <Plug>(go-run)
-autocmd FileType go nmap <leader>b <Plug>(go-build)
-autocmd FileType go nmap <leader>t <Plug>(go-test)
-autocmd FileType go nmap <leader>c <Plug>(go-coverage)
-autocmd FileType go nmap <Leader>dv <Plug>(go-def-vertical)
-autocmd FileType go nmap <Leader>gd <Plug>(go-doc)
-autocmd FileType go nmap <Leader>gv <Plug>(go-doc-vertical)
-autocmd FileType go nmap <Leader>m Gipackage main<CR><CR>import (<CR>"log"<CR>)<CR>func main() {<CR>}<ESC>O
-
-let g:go_highlight_functions = 1
-let g:go_highlight_methods = 1
-let g:go_highlight_structs = 1
-let g:go_highlight_operators = 1
-let g:go_highlight_build_constraints = 1
-let g:go_auto_type_info = 1
 
 " Ctags
 let Tlist_WinWidth = 55
@@ -112,21 +94,86 @@ function! HasPaste()
 endfunction
 
 function! HasFlake()
-  if !exists("*Flake8()") && executable('flake8')
-      return ''
-  endif
-  return 'NO'
+    if !exists("*Flake8()") && executable('flake8')
+        return ''
+    endif
+    return 'NO'
 endfunction
 
 set laststatus=2
 set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ CWD:\ %r%{CurDir()}%h\ \ \ Line:\ %l/%L%{GitBranch()}\ FLAKE:%{HasFlake()}
 if !exists("*Flake8()") && executable('flake8')
-  autocmd BufWritePost *.py call Flake8()
+    autocmd BufWritePost *.py call Flake8()
 endif
 
 
-nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+"nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 
 imap jk <esc>
 
 set pastetoggle=<F2>
+
+
+filetype off
+
+set rtp+=~/.vim/bundle/Vundle.vim
+call vundle#begin()
+
+Plugin 'gmarik/Vundle.vim'
+Plugin 'tmhedberg/SimpylFold'
+Plugin 'vim-scripts/indentpython.vim'
+Bundle 'Valloric/YouCompleteMe'
+Plugin 'vim-syntastic/syntastic'
+Plugin 'nvie/vim-flake8'
+Plugin 'scrooloose/nerdtree'
+Plugin 'jistr/vim-nerdtree-tabs'
+Plugin 'kien/ctrlp.vim'
+Plugin 'tpope/vim-fugitive'
+Plugin 'scrooloose/nerdcommenter'
+Plugin 'SirVer/ultisnips'
+Plugin 'honza/vim-snippets'
+Bundle 'ervandew/supertab'
+
+
+call vundle#end()
+filetype plugin indent on
+
+set splitbelow
+set splitright
+
+set foldmethod=indent
+set foldlevel=99
+
+" Enable folding with the spacebar
+nnoremap <space> za
+
+let g:SimpylFold_docstring_preview=1
+
+
+let g:ycm_autoclose_preview_window_after_completion=1
+map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
+let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
+let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
+let g:SuperTabDefaultCompletionType = '<C-n>'
+
+let g:UltiSnipsExpandTrigger = "<tab>"
+let g:UltiSnipsJumpForwardTrigger = "<tab>"
+let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
+
+"python with virtualenv support
+py << EOF
+import os
+import sys
+if 'VIRTUAL_ENV' in os.environ:
+    project_base_dir = os.environ['VIRTUAL_ENV']
+    activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
+    execfile(activate_this, dict(__file__=activate_this))
+EOF
+
+let python_highlight_all=1
+syntax on
+
+let NERDTreeIgnore=['\.pyc$', '\~$'] "ignore files in NERDTree
+
+map <leader>e :CtrlP .<CR>
+
