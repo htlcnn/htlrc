@@ -1,179 +1,191 @@
-let mapleader=','
-
-nnoremap <F3> :set hlsearch!<CR>
-
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
-
-
-set nocompatible
-set encoding=utf-8
-set history=50
-set nospell
-
-" Vim pathogen
-" execute pathogen#infect()
-
-
-" Indenting
-set autoindent
-set cindent
-set smartindent
-
-" Tab
-set expandtab
-set sw=4
-set ts=4
-
-set backspace=indent,eol,start
-set cursorline
-set colorcolumn=80
-set nu
-set ruler
-set showcmd
-syntax on
-" set background=dark
-" colorscheme solarized
-" colorscheme peachpuff
-
-set hlsearch
-set incsearch
-set showmatch
-
-" Binding
-
-nmap <Leader>E :NERDTreeToggle<CR>
-nmap <Leader>p :set paste!<CR>i
-nmap <Leader>s :source $MYVIMRC<CR>
-nmap <Leader>v :e $MYVIMRC<CR>
-nmap <C-N> :next<CR>
-nmap <C-B> :prev<CR>
-
-filetype plugin indent on
-autocmd FileType text setlocal textwidth=78
-autocmd BufNewFile,BufRead *.jinja,*.jinja2 set ft=sls
-autocmd BufWritePre * :%s/\s\+$//e
-
-" Python
-autocmd FileType python nmap <Leader>r :!python %<CR>
-autocmd FileType python nmap <Leader># ggO#!/usr/bin/env python2<CR># -*- coding: utf-8 -*-<Esc>o
-autocmd FileType python nmap <Leader>m Giif __name__ == "__main__":<CR>
-autocmd FileType python set omnifunc=pythoncomplete#Complete
-
-" Shell
-autocmd FileType sh nmap <Leader>r :!bash %<CR>
-autocmd FileType sh nmap <Leader># ggO#!/bin/bash<Esc>o
-
-
-" Ctags
-let Tlist_WinWidth = 55
-map T :TaskList<CR>
-" D stands for def
-map D :TlistToggle<CR>
-
-" For simple status bar
-function! GitBranch()
-    let branch = system("git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* //'")
-    if branch != ''
-        return '   Git Branch: ' . substitute(branch, '\n', '', 'g')
-    en
-    return ''
-endfunction
-
-function! CurDir()
-    return substitute(getcwd(), expand("$HOME"), "~", "g")
-endfunction
-
-function! HasPaste()
-    if &paste
-        return 'PASTE MODE  '
-    en
-    return ''
-endfunction
-
-function! HasFlake()
-    if !exists("*Flake8()") && executable('flake8')
-        return ''
-    endif
-    return 'NO'
-endfunction
-
-set laststatus=2
-set statusline=\ %{HasPaste()}%F%m%r%h\ %w\ CWD:\ %r%{CurDir()}%h\ \ \ Line:\ %l/%L%{GitBranch()}\ FLAKE:%{HasFlake()}
-if !exists("*Flake8()") && executable('flake8')
-    autocmd BufWritePost *.py call Flake8()
+" plugins
+let need_to_install_plugins = 0
+if empty(glob('~/.vim/autoload/plug.vim'))
+    silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
+        \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+    "autocmd VimEnter * PlugInstall --sync | source $MYVIMRC
+    let need_to_install_plugins = 1
 endif
 
+call plug#begin()
+Plug 'tpope/vim-sensible'
+Plug 'itchyny/lightline.vim'
+Plug 'joshdick/onedark.vim'
+Plug 'ap/vim-buftabline'
+Plug 'airblade/vim-gitgutter'
+Plug 'vim-scripts/The-NERD-tree'
+Plug 'jistr/vim-nerdtree-tabs'
+Plug 'Xuyuanp/nerdtree-git-plugin'
+Plug 'scrooloose/syntastic'
+Plug 'majutsushi/tagbar'
+Plug 'vim-scripts/indentpython.vim'
+Plug 'lepture/vim-jinja'
+Plug 'pangloss/vim-javascript'
+call plug#end()
 
-"nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
+filetype plugin indent on
+syntax on
 
-imap jk <esc>
+if need_to_install_plugins == 1
+    echo "Installing plugins..."
+    silent! PlugInstall
+    echo "Done!"
+    q
+endif
 
-set pastetoggle=<F2>
+" always show the status bar
+set laststatus=2
 
+" enable 256 colors
+set t_Co=256
+set t_ut=
 
-filetype off
+" turn on line numbering
+set number
 
-set rtp+=~/.vim/bundle/Vundle.vim
-call vundle#begin()
+" sane text files
+set fileformat=unix
+set encoding=utf-8
+set fileencoding=utf-8
 
-Plugin 'gmarik/Vundle.vim'
-Plugin 'tmhedberg/SimpylFold'
-Plugin 'vim-scripts/indentpython.vim'
-Bundle 'Valloric/YouCompleteMe'
-Plugin 'vim-syntastic/syntastic'
-Plugin 'nvie/vim-flake8'
-Plugin 'scrooloose/nerdtree'
-Plugin 'jistr/vim-nerdtree-tabs'
-Plugin 'kien/ctrlp.vim'
-Plugin 'tpope/vim-fugitive'
-Plugin 'scrooloose/nerdcommenter'
-Plugin 'SirVer/ultisnips'
-Plugin 'honza/vim-snippets'
-Bundle 'ervandew/supertab'
+" sane editing
+set tabstop=4
+set shiftwidth=4
+set softtabstop=4
+set colorcolumn=80
+set expandtab
+set viminfo='25,\"50,n~/.viminfo
 
+" word movement
+imap <S-Left> <Esc>bi
+nmap <S-Left> b
+imap <S-Right> <Esc><Right>wi
+nmap <S-Right> w
 
-call vundle#end()
+" indent/unindent with tab/shift-tab
+nmap <Tab> >>
+imap <S-Tab> <Esc><<i
+nmap <S-tab> <<
+
+" mouse
+set mouse=a
+let g:is_mouse_enabled = 1
+noremap <silent> <Leader>m :call ToggleMouse()<CR>
+function ToggleMouse()
+    if g:is_mouse_enabled == 1
+        echo "Mouse OFF"
+        set mouse=
+        let g:is_mouse_enabled = 0
+    else
+        echo "Mouse ON"
+        set mouse=a
+        let g:is_mouse_enabled = 1
+    endif
+endfunction
+
+" color scheme
+syntax on
+colorscheme onedark
+filetype on
 filetype plugin indent on
 
-set splitbelow
-set splitright
+" lightline
+set noshowmode
+let g:lightline = { 'colorscheme': 'onedark' }
 
+" code folding
 set foldmethod=indent
 set foldlevel=99
 
-" Enable folding with the spacebar
-nnoremap <space> za
+" wrap toggle
+setlocal nowrap
+noremap <silent> <Leader>w :call ToggleWrap()<CR>
+function ToggleWrap()
+    if &wrap
+        echo "Wrap OFF"
+        setlocal nowrap
+        set virtualedit=all
+        silent! nunmap <buffer> <Up>
+        silent! nunmap <buffer> <Down>
+        silent! nunmap <buffer> <Home>
+        silent! nunmap <buffer> <End>
+        silent! iunmap <buffer> <Up>
+        silent! iunmap <buffer> <Down>
+        silent! iunmap <buffer> <Home>
+        silent! iunmap <buffer> <End>
+    else
+        echo "Wrap ON"
+        setlocal wrap linebreak nolist
+        set virtualedit=
+        setlocal display+=lastline
+        noremap  <buffer> <silent> <Up>   gk
+        noremap  <buffer> <silent> <Down> gj
+        noremap  <buffer> <silent> <Home> g<Home>
+        noremap  <buffer> <silent> <End>  g<End>
+        inoremap <buffer> <silent> <Up>   <C-o>gk
+        inoremap <buffer> <silent> <Down> <C-o>gj
+        inoremap <buffer> <silent> <Home> <C-o>g<Home>
+        inoremap <buffer> <silent> <End>  <C-o>g<End>
+    endif
+endfunction
 
-let g:SimpylFold_docstring_preview=1
+" move through split windows
+nmap <leader><Up> :wincmd k<CR>
+nmap <leader><Down> :wincmd j<CR>
+nmap <leader><Left> :wincmd h<CR>
+nmap <leader><Right> :wincmd l<CR>
 
+" move through buffers
+nmap <leader>[ :bp!<CR>
+nmap <leader>] :bn!<CR>
+nmap <leader>x :bd<CR>
 
-let g:ycm_autoclose_preview_window_after_completion=1
-map <leader>g  :YcmCompleter GoToDefinitionElseDeclaration<CR>
-let g:ycm_key_list_select_completion = ['<C-n>', '<Down>']
-let g:ycm_key_list_previous_completion = ['<C-p>', '<Up>']
-let g:SuperTabDefaultCompletionType = '<C-n>'
+" restore place in file from previous session
+autocmd BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
-let g:UltiSnipsExpandTrigger = "<tab>"
-let g:UltiSnipsJumpForwardTrigger = "<tab>"
-let g:UltiSnipsJumpBackwardTrigger = "<s-tab>"
+" file browser
+let NERDTreeIgnore = ['\.pyc$', '__pycache__']
+let NERDTreeMinimalUI = 1
+let g:nerdtree_open = 0
+map <leader>n :call NERDTreeToggle()<CR>
+function NERDTreeToggle()
+    NERDTreeTabsToggle
+    if g:nerdtree_open == 1
+        let g:nerdtree_open = 0
+    else
+        let g:nerdtree_open = 1
+        wincmd p
+    endif
+endfunction
 
-"python with virtualenv support
-py << EOF
-import os
-import sys
-if 'VIRTUAL_ENV' in os.environ:
-    project_base_dir = os.environ['VIRTUAL_ENV']
-    activate_this = os.path.join(project_base_dir, 'bin/activate_this.py')
-    execfile(activate_this, dict(__file__=activate_this))
-EOF
+" syntastic
+let g:syntastic_always_populate_loc_list = 1
+let g:syntastic_auto_loc_list = 1
+let g:syntastic_check_on_open = 0
+let g:syntastic_check_on_wq = 0
+map <leader>s :SyntasticCheck<CR>
+map <leader>d :SyntasticReset<CR>
+map <leader>e :lnext<CR>
+map <leader>r :lprev<CR>
 
-let python_highlight_all=1
-syntax on
+" tag list
+map <leader>t :TagbarToggle<CR>
 
-let NERDTreeIgnore=['\.pyc$', '\~$'] "ignore files in NERDTree
+" copy, cut and paste
+vmap <C-c> "+y
+vmap <C-x> "+c
+vmap <C-v> c<ESC>"+p
+imap <C-v> <ESC>"+pa
 
-map <leader>e :CtrlP .<CR>
+" disable autoindent when pasting text
+" source: https://coderwall.com/p/if9mda/automatically-set-paste-mode-in-vim-when-pasting-in-insert-mode
+let &t_SI .= "\<Esc>[?2004h"
+let &t_EI .= "\<Esc>[?2004l"
 
+function! XTermPasteBegin()
+    set pastetoggle=<Esc>[201~
+    set paste
+    return ""
+endfunction
+
+inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
